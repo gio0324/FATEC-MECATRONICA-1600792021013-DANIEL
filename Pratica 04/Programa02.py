@@ -14,3 +14,8 @@ if senha == senha_secreta:
 
 if senha != senha_secreta:
   print('Acesso negado!')
+
+# ou 'else'
+
+else 
+print('Acesso negado!')
