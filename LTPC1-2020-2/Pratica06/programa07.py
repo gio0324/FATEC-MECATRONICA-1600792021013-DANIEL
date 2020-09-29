@@ -1,6 +1,7 @@
 #Estrutura de repetição
 numero_secreto = 42
 
+#while significa 'enquanto'
 acertou = False
 while acertou == False:
   chute = int(input("Informe seu chute:"))
