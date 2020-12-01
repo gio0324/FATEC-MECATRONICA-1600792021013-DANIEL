@@ -1,0 +1,168 @@
+#Programa para Transação Financeira
+
+import random
+
+def create_id(table):
+	id_da_conta = random.randint(1, 9999)
+	for conta in table:
+		lista = table.get(conta)
+		id_existente = lista[1]
+		if id_da_conta == id_existente:
+			create_id(table)
+	return id_da_conta
+def create_user(table, contador = 3):
+	login = input("digite o login desejado: ")
+	senha = input("digite a senha desejada: ")
+	conf_senha = input("digite novamente a senha desejada: ")
+	email = input("digite o email:")
+	id_da_conta = create_id(table)
+	saldo = int(input("digite o saldo atual: "))
+	lista = [id_da_conta, senha, email, saldo]
+	if conf_senha == senha:
+		if login not in table:
+			table.update({login : lista})
+			menu(table)
+		else:
+			contador = contador - 1
+			if contador == 0:
+				print ("sistema encerrado")
+				return
+			print ("esse usuário já existe, você tem mais {} tentativas".format(contador))
+			menu(table)
+	else:
+		contador = contador - 1
+		if contador == 0:
+			print ("sistema encerrado")
+			return
+		print ("as senhas digitadas não coincidem, você tem mais {} tentativas".format(contador))
+		create_user(table)
+	
+def bank_transfer(table, login, saldo, conf_senha, lista_qrcode, contador = 3):
+	login_conf = input ("digite o login da sua conta: ")
+	login_destino = input ("digite o login para onde vai o dinheiro: ")
+	qrcode = input("digite o qrcode da transação: ")
+	senha = input("digite a senha para a confirmação do procedimento: ")
+	if senha == conf_senha:
+		if login == login_conf:
+			if login_destino in table:
+				if qrcode in lista_qrcode:
+					dinheiro = int(lista_qrcode.get(qrcode))
+					lista = table.get(login)
+					saldo = int(saldo) - int(dinheiro)
+					if saldo < 0:
+						print ("saldo insuficiente")
+						return
+					lista[3] = saldo
+					table[login] = lista
+					lista_destino = table.get(login_destino)
+					saldo_destino = int(lista_destino[3])
+					saldo_destino = int(saldo_destino) + int(dinheiro)
+					lista_destino[3] = saldo_destino
+					table[login_destino] = lista_destino
+					print ("seu procedimento foi concluído")
+					menu(table)
+				else:
+					contador = contador - 1
+					if contador == 0:
+						print ("sistema encerrado")
+						return
+					print ("não existe esse qrcode, você tem mais {} tentativas".format(contador))
+					print (lista_qrcode)
+					bank_transfer(table, login, saldo, conf_senha, contador)
+			else:
+				contador = contador - 1
+				if contador == 0:
+					print ("sistema encerrado")
+					return
+				print ("login de destino não existente, você tem mais {} tentativas".format(contador))
+				bank_transfer(table, login, saldo, conf_senha, contador)			
+		else:
+			contador = contador - 1
+			if contador == 0:
+				print ("sistema encerrado")
+				return
+			print ("login errado, você tem mais {} tentativas".format(contador))
+			bank_transfer(table, login, saldo, conf_senha, contador)
+	else:
+		contador = contador - 1
+		if contador == 0:
+			print ("sistema encerrado")
+			return
+		print ("senha incorreta, você tem mais {} tentativas".format(contador))
+		bank_transfer(table, login, saldo, conf_senha, contador)
+
+def read_data(table, contador = 3):
+	login = input("digite o login: ")
+	senha = input("digite a senha: ")
+	conf_senha = input("digite novamente a senha: ")
+	if senha == conf_senha:
+		if login in table:
+			lista = table.get(login)
+			conf_senha = lista[1]
+			if senha in conf_senha:
+				saldo = int(lista[3])
+				menu2(table, login, saldo, conf_senha)
+			else:
+				contador = contador - 1
+				if contador == 0:
+					print ("sistema encerrado")
+					return
+				print ("senha incorreta, você tem mais {} tentativas".format(contador))
+				read_data(table)
+		else:
+			contador = contador - 1
+			if contador == 0:
+				print ("sistema encerrado")	
+				return
+			print ("login não existe, você tem mais {} tentativas".format(contador))
+			menu(table)
+	else:
+		contador = contador - 1
+		if contador == 0:
+			print ("sistema encerrado")
+			return
+		print ("as senhas digitadas não coincidem, você tem mais {} tentativas".format(contador))
+		read_data(table)
+def menu(table):
+	escolha = int(input ("criar conta (digite 1), acessar conta (digite 2)"))
+	if escolha == 1:
+		create_user(table)
+	elif escolha == 2:
+		read_data(table)
+	else:
+		return
+def menu2(table, login, saldo, conf_senha, lista_qrcode = dict()):
+	print ("para o login {}, há atualmente na conta {} reais.".format(login, saldo))
+	escolha = input("deseja realizar uma operação?(S/N) ")
+	if escolha in ["S", "s"]:
+		escolha = int(input("gerar pagamento (digite 1), pagar (digite 2)"))
+		if escolha == 1:
+			create_qrcode(table, login, lista_qrcode)
+		elif escolha == 2:
+			bank_transfer(table, login, saldo, conf_senha, lista_qrcode)
+
+def create_qrcode(table, login, lista_qrcode):
+	dinheiro = int(input("por favor informe a quantia cobrada: "))
+	qr = random.randint(1, 9999)
+	lista = table.get(login)
+	id_da_conta = lista[0]
+	qrcode = "{};{};{};{}".format(id_da_conta, login, dinheiro,qr)
+	lista_qrcode[qrcode] = dinheiro
+	print ("copie o qrcode a seguir e mande para o devedor: ", qrcode)
+	menu(table)
+
+
+#pode-se colocar um dicionário predefinido se quiser, mas deve ser na forma {login:[id_da_conta, senha, email, saldo]}
+table = dict()
+menu(table)
+
+
+
+
+
+Daniel Fernandez Viana Ra:1600792021013
+Giovanni luis almeida lima luna araujo  Ra:1600792021037    git:https://github.com/gio0324/FATEC-MECATRONICA-1600792021037-Giovanni
+LUCAS BISPO VICENTE     RA:1600792021034      git:https://github.com/LUCAS-VICENTE/FATEC-MECATRONICA-1600792021034-LUCAS/tree/master/LTP1-2020-2
+
+  
+
